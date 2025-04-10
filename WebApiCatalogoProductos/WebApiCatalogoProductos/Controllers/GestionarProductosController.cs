@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using WebApiCatalogoProductos.DTOs;
+using WebApiCatalogoProductos.Services;
+using WebApiCatalogoProductos.Interfaces;
 using WebApiCatalogoProductos.Entities;
 
 namespace WebApiCatalogoProductos.Controllers
@@ -10,64 +12,58 @@ namespace WebApiCatalogoProductos.Controllers
     public class GestionarProductosController : ControllerBase
     {
         private readonly ILogger<GestionarProductosController> logger;
-        private readonly ApplicationDbContext dbContext;
+        private readonly IProductoServices _productoServices;
         private readonly IMapper mapper;
 
         
-        public GestionarProductosController(ILogger<GestionarProductosController> logger, ApplicationDbContext dbContext, IMapper mapper)
+        public GestionarProductosController(ILogger<GestionarProductosController> logger, IProductoServices productoServices, IMapper mapper)
         {
             this.logger = logger;
-            this.dbContext = dbContext;
+            this._productoServices = productoServices;
             this.mapper = mapper;
         }
 
-        [HttpGet("ObtenerListadoProductos")]
-        public async Task<ActionResult<List<ProductoDTO>>> ObtenerListadoProductos()
+        [HttpGet("ObtenerListadoDeProductos")]
+        public async Task<ActionResult<List<ProductoDTO>>> ObtenerListadoDeProductos()
         {
-            var queryable = dbContext.Generos.AsQueryable();
-            var generos = await queryable.OrderBy(x => x.Nombre).ToListAsync();
-            return mapper.Map<List<ProductoDTO>>(generos);
+            var productos = await _productoServices.ObtenerListadoDeProductos();
+            return mapper.Map<List<ProductoDTO>>(productos);
         }
 
         [HttpGet("ObtenerProductoPorId/{Id:int}")]
         public async Task<ActionResult<ProductoDTO>> ObtenerProductoPorId(int Id)
         {
-            var genero = await dbContext.Generos.FirstOrDefaultAsync(x => x.Id == Id);
+            var producto = await _productoServices.ObtenerProductoPorId(Id);
 
-            if (genero == null)
+            if (producto == null)
             {
                 return NotFound();
             }
-            return mapper.Map<ProductoDTO>(genero);
+            return Ok(mapper.Map<ProductoDTO>(producto));
         }
 
         [HttpPost("AgregarProducto")]
         public async Task<ActionResult> Post([FromBody] ProductoDTO productoDTO)
         {
             var producto = mapper.Map<Producto>(productoDTO);
-            dbContext.Add(producto);
-            await dbContext.SaveChangesAsync();
+            await _productoServices.AgregarProducto(producto);
             return Ok(new { message = "Producto agregado correctamente" });
         }
 
-        [HttpPut("EditarProducto")]
-        public async Task<ActionResult> Put(int id, [FromBody] ProductoDTO productoDTO)
+        [HttpPut("ActualizarProducto")]
+        public async Task<ActionResult> ActualizarProducto(int Id, [FromBody] ProductoDTO productoDTO)
         {
-            var producto = await dbContext.Productos.FirstOrDefaultAsync(x => x.Id == id);
-
-            if (producto == null)
-            {
-                return NotFound();
-            }
-            producto = mapper.Map(productoDTO, producto);
-            await dbContext.SaveChangesAsync();
+            var producto = mapper.Map<Producto>(productoDTO);
+            producto.Id = Id;
+            await _productoServices.ActualizarProducto(producto);
             return NoContent();
 
         }
-        [HttpDelete]
-        public async Task<ActionResult> Delete()
+        [HttpDelete("EliminarProducto/{Id:int}")]
+        public async Task<ActionResult> EliminarProducto(int Id)
         {
-            throw new NotImplementedException();
+            await _productoServices.EliminarProducto(Id);
+            return Ok();
         }
     }
 }

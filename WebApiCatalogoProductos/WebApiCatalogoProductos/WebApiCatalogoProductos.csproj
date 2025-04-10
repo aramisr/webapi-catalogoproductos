@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="14.0.0" />
+    <PackageReference Include="Dapper" Version="2.1.35" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.15" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.15" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.15">
@@ -20,11 +21,7 @@
   <ItemGroup>
     <Folder Include="Behaviors\" />
     <Folder Include="Filtros\" />
-    <Folder Include="Interfaces\" />
-    <Folder Include="Services\" />
     <Folder Include="Validations\" />
-    <Folder Include="Utilidades\" />
-    <Folder Include="Repository\" />
   </ItemGroup>
 
 </Project>
