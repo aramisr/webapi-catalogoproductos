@@ -14,7 +14,6 @@ namespace WebApiCatalogoProductos.Controllers
         private readonly ILogger<GestionarProductosController> logger;
         private readonly IProductoServices _productoServices;
         private readonly IMapper mapper;
-
         
         public GestionarProductosController(ILogger<GestionarProductosController> logger, IProductoServices productoServices, IMapper mapper)
         {
